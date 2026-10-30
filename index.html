@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlphaPulse Terminal v2.4 - Radar de Señales Cripto en Vivo</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Fuentes Google: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Iconos Material Symbols -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#00f29d',
+              glow: '#00f29d',
+              dim: '#00bd7e',
+              dark: '#033524'
+            },
+            surface: {
+              lowest: '#07090e',
+              base: '#0b0e14',
+              card: '#10131a',
+              cardLight: '#161a23',
+              border: '#1f2430',
+              borderHover: '#2d3446'
+            },
+            danger: {
+              DEFAULT: '#ff3b69',
+              dim: '#3e121f'
+            },
+            warning: {
+              DEFAULT: '#ffb300',
+              dim: '#392800'
+            },
+            accent: {
+              sol: '#9945ff',
+              eth: '#627eea',
+              base: '#0052ff',
+              arb: '#28a0f0'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body {
+      background-color: #0b0e14;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #0b0e14;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #1f2430;
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #00f29d;
+    }
+    .glow-box {
+      box-shadow: 0 0 15px -3px rgba(0, 242, 157, 0.2);
+    }
+    .glow-box-sm {
+      box-shadow: 0 0 8px -2px rgba(0, 242, 157, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-surface-base text-slate-200 min-h-screen flex flex-col antialiased selection:bg-brand selection:text-black">
+
+  <!-- ================= TOP HEADER / NAVBAR ================= -->
+  <header class="border-b border-surface-border bg-surface-lowest/90 backdrop-blur sticky top-0 z-50">
+    <div class="px-4 py-2.5 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Status -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded bg-surface-card border border-brand/40 flex items-center justify-center glow-box">
+            <span class="material-symbols-outlined text-brand text-lg">radar</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-extrabold text-sm tracking-wider uppercase text-white font-mono">ALPHAPULSE</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-surface-card border border-surface-border text-slate-400 font-mono">v2.4</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-brand animate-pulse"></span>
+              <span>MEMPOOL RPC: <strong class="text-brand font-medium">18ms</strong></span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="h-5 w-px bg-surface-border mx-1"></div>
+        
+        <!-- Live Sync Badge -->
+        <div class="flex items-center gap-1 px-2 py-0.5 rounded bg-brand/10 border border-brand/30 text-brand text-xs font-mono">
+          <span class="material-symbols-outlined text-xs">bolt</span>
+          <span>LIVE SYNC</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1 text-xs font-medium">
+        <button class="px-3 py-1.5 rounded bg-surface-card text-brand border border-brand/30 font-semibold flex items-center gap-1.5 transition">
+          <span class="material-symbols-outlined text-sm">satellite_alt</span>
+          Radar de Señales
+        </button>
+        <button class="px-3 py-1.5 rounded text-slate-400 hover:text-white hover:bg-surface-card border border-transparent transition flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">show_chart</span>
+          Ficha de Token & Gráfico
+        </button>
+        <button class="px-3 py-1.5 rounded text-slate-400 hover:text-white hover:bg-surface-card border border-transparent transition flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">monitoring</span>
+          Smart Money Tracker
+        </button>
+        <button class="px-3 py-1.5 rounded text-slate-400 hover:text-white hover:bg-surface-card border border-transparent transition flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">notifications_active</span>
+          Sniper Alertas
+        </button>
+      </nav>
+
+      <!-- Search, Network & User Profile -->
+      <div class="flex items-center gap-2.5">
+        <!-- Quick Search -->
+        <div class="relative hidden lg:block w-64">
+          <span class="material-symbols-outlined text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 text-sm">search</span>
+          <input type="text" placeholder="Search Token / CA (⌘K)" class="w-full bg-surface-card border border-surface-border text-xs rounded pl-8 pr-8 py-1.5 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-brand font-mono">
+          <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] bg-surface-base px-1 rounded text-slate-400 border border-surface-border font-mono">⌘K</span>
+        </div>
+
+        <!-- Network Selector -->
+        <button class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-surface-card border border-surface-border hover:border-surface-borderHover text-xs font-mono text-slate-200">
+          <span class="w-2 h-2 rounded-full bg-accent-sol"></span>
+          <span>Solana</span>
+          <span class="material-symbols-outlined text-xs text-slate-400">expand_more</span>
+        </button>
+
+        <!-- Sound toggle -->
+        <button class="p-1.5 rounded bg-surface-card border border-surface-border text-slate-400 hover:text-brand transition">
+          <span class="material-symbols-outlined text-sm">volume_up</span>
+        </button>
+
+        <!-- User tier -->
+        <div class="flex items-center gap-2 pl-1 border-l border-surface-border">
+          <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-brand to-cyan-500 p-0.5">
+            <div class="w-full h-full bg-surface-card rounded-full flex items-center justify-center font-mono text-[10px] font-bold text-brand">
+              AP
+            </div>
+          </div>
+          <div class="hidden xl:block text-left">
+            <div class="text-[11px] font-semibold text-white font-mono leading-none">alpha.trader</div>
+            <div class="text-[9px] text-brand uppercase font-mono font-bold leading-tight">PRO TIER</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Ticker Sub-bar -->
+    <div class="px-4 py-1 bg-surface-base border-t border-surface-border/60 flex items-center justify-between text-[11px] font-mono text-slate-400 overflow-x-auto whitespace-nowrap custom-scroll">
+      <div class="flex items-center gap-4">
+        <span>BTC/USD <strong class="text-white">$89,420.50</strong> <span class="text-brand">+2.84%</span></span>
+        <span class="text-slate-600">•</span>
+        <span>ETH/USD <strong class="text-white">$3,412.10</strong> <span class="text-brand">+4.12%</span></span>
+        <span class="text-slate-600">•</span>
+        <span>SOL/USD <strong class="text-white">$214.85</strong> <span class="text-brand">+6.95%</span></span>
+        <span class="text-slate-600">•</span>
+        <span>SUI/USD <strong class="text-white">$3.42</strong> <span class="text-brand">+11.40%</span></span>
+        <span class="text-slate-600">•</span>
+        <span>PEPE/USD <strong class="text-white">$0.0000214</strong> <span class="text-danger">-1.82%</span></span>
+        <span class="text-slate-600">•</span>
+        <span>ONDO/USD <strong class="text-white">$1.24</strong> <span class="text-brand">+8.65%</span></span>
+      </div>
+      
+      <div class="flex items-center gap-3 text-slate-500 pl-4 border-l border-surface-border">
+        <span><span class="inline-block w-1.5 h-1.5 rounded-full bg-brand mr-1"></span> VOL 24H: <strong class="text-slate-300">$4.82B</strong></span>
+        <span>ALPHA SIGNALS (1H): <strong class="text-brand">142</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="flex-1 p-3 lg:p-4 space-y-3.5 max-w-[1920px] mx-auto w-full">
+    
+    <!-- 1. HIGH-DENSITY METRICS CARDS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 font-mono">
+      
+      <!-- Card 1 -->
+      <div class="p-3 bg-surface-card border border-surface-border rounded-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+          <span class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
+            SEÑALES ACTIVAS (1H)
+          </span>
+          <span class="material-symbols-outlined text-sm text-slate-500">radar</span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <div class="text-2xl font-bold text-white tracking-tight">38</div>
+          <span class="text-[11px] text-slate-400">detectadas</span>
+          <span class="text-xs text-brand ml-auto font-medium">+14% vs avg</span>
+        </div>
+        <div class="w-full bg-surface-lowest h-1 rounded-full mt-2 overflow-hidden">
+          <div class="bg-brand h-full w-[78%]"></div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-3 bg-surface-card border border-surface-border rounded-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+          <span>VOLUMEN ANÓMALO 24H</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded bg-cyan-950/60 border border-cyan-800 text-cyan-400">POOLS TEMPRANAS</span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <div class="text-2xl font-bold text-white tracking-tight">$48.2M</div>
+          <span class="text-xs text-brand ml-auto font-medium">⚡ 23 Pools Clave</span>
+        </div>
+        <div class="w-full bg-surface-lowest h-1 rounded-full mt-2 overflow-hidden">
+          <div class="bg-cyan-400 h-full w-[65%]"></div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-3 bg-surface-card border border-brand/40 glow-box-sm rounded-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+          <span class="text-brand font-semibold">RATIO DE ÉXITO ALERTAS</span>
+          <span class="text-[10px] text-brand border border-brand/30 px-1 rounded">ALGORITMO V4</span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <div class="text-2xl font-extrabold text-brand tracking-tight">84.6%</div>
+          <span class="text-[11px] text-slate-400">Alcanzaron ≥ 2x+</span>
+        </div>
+        <div class="w-full bg-surface-lowest h-1 rounded-full mt-2 overflow-hidden">
+          <div class="bg-brand h-full w-[84.6%]"></div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="p-3 bg-surface-card border border-surface-border rounded-lg relative overflow-hidden">
+        <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+          <span>RUGPULLS NEUTRALIZADOS</span>
+          <span class="text-[10px] text-danger border border-danger/30 px-1 rounded">HONEYPOT SCAN</span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <div class="text-2xl font-bold text-danger tracking-tight">142</div>
+          <span class="text-[11px] text-slate-400">bloqueados</span>
+          <span class="text-xs text-slate-400 ml-auto font-medium">0 Exploits en Feed</span>
+        </div>
+        <div class="w-full bg-surface-lowest h-1 rounded-full mt-2 overflow-hidden">
+          <div class="bg-danger h-full w-[95%]"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. FILTER & STREAM CONTROL BAR -->
+    <div class="p-2.5 bg-surface-card border border-surface-border rounded-lg flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+      
+      <!-- Category Badges -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <button class="px-2.5 py-1 rounded bg-brand text-black font-bold flex items-center gap-1 shadow-sm">
+          TODOS <span class="bg-black/20 text-black px-1 rounded text-[10px]">38</span>
+        </button>
+        <button class="px-2.5 py-1 rounded bg-surface-base hover:bg-surface-border border border-surface-border text-slate-300 flex items-center gap-1">
+          🔥 MEMECOINS VIRALES (PUMP/RAY/BASE)
+        </button>
+        <button class="px-2.5 py-1 rounded bg-surface-base hover:bg-surface-border border border-surface-border text-slate-300 flex items-center gap-1">
+          ⚡ DEFI 2.0 & YIELD
+        </button>
+        <button class="px-2.5 py-1 rounded bg-surface-base hover:bg-surface-border border border-surface-border text-slate-300 flex items-center gap-1">
+          🏛 TRADFI & RWA
+        </button>
+        <button class="px-2.5 py-1 rounded bg-surface-base hover:bg-surface-border border border-surface-border text-slate-300 flex items-center gap-1">
+          🐳 SMART MONEY INFLOW
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="flex items-center gap-1 text-[11px] text-slate-400">
+          <span class="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+          STREAM ACTIVO
+        </span>
+        <button class="p-1.5 rounded bg-surface-base border border-surface-border text-slate-400 hover:text-white">
+          <span class="material-symbols-outlined text-sm">tune</span>
+        </button>
+      </div>
+
+      <!-- Quick Criteria Filters -->
+      <div class="w-full pt-2 border-t border-surface-border/60 flex items-center justify-between flex-wrap gap-2 text-[11px] text-slate-400">
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="flex items-center gap-1">
+            <span class="text-slate-500">RED:</span>
+            <span class="text-white cursor-pointer hover:underline">Todas</span>
+            <span>·</span>
+            <span class="cursor-pointer hover:text-white">Solana</span>
+            <span>·</span>
+            <span class="cursor-pointer hover:text-white">Base</span>
+            <span>·</span>
+            <span class="cursor-pointer hover:text-white">ETH</span>
+            <span>·</span>
+            <span class="cursor-pointer hover:text-white">Arbitrum</span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500">LIQ MIN:</span>
+            <select class="bg-surface-base border border-surface-border text-slate-300 rounded px-1.5 py-0.5 text-[11px] focus:outline-none">
+              <option>> $10k USD</option>
+              <option>> $25k USD</option>
+              <option>> $50k USD</option>
+              <option>> $100k USD</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500">MCAP MÁX:</span>
+            <select class="bg-surface-base border border-surface-border text-slate-300 rounded px-1.5 py-0.5 text-[11px] focus:outline-none">
+              <option>< $2.0M</option>
+              <option>< $500K (Micro-caps)</option>
+              <option>< $5.0M</option>
+            </select>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500">ANTIGÜEDAD:</span>
+            <select class="bg-surface-base border border-surface-border text-slate-300 rounded px-1.5 py-0.5 text-[11px] focus:outline-none">
+              <option>< 4h (Ultra Early)</option>
+              <option>< 1h</option>
+              <option>< 24h</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-brand flex items-center gap-1">
+            <span class="material-symbols-outlined text-xs">verified</span>
+            AUTO-SNIPE READY
+          </span>
+          <span class="text-slate-600">|</span>
+          <span>FILTROS: <strong class="text-slate-300">DEFAULT_MAX_SAFETY</strong></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. MAIN TERMINAL WORKSPACE (2-COLUMN GRID) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+      
+      <!-- LEFT 8-COLS: LIVE ALPHA SCREENER TABLE -->
+      <section class="lg:col-span-8 bg-surface-card border border-surface-border rounded-lg flex flex-col overflow-hidden">
+        
+        <!-- Table Header Controls -->
+        <div class="p-3 border-b border-surface-border flex items-center justify-between text-xs font-mono">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-brand text-base">emergency</span>
+            <span class="font-bold text-white uppercase tracking-wider">ALPHA SCREENER EN DIRECTO</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-brand/10 border border-brand/30 text-brand">38 ACTIVOS</span>
+          </div>
+
+          <div class="flex items-center gap-3 text-[11px] text-slate-400">
+            <span>Velocidad: <strong class="text-slate-200">120 tps</strong></span>
+            <span class="flex items-center gap-1 text-brand">
+              <span class="w-1.5 h-1.5 rounded-full bg-brand"></span> RPC Sync 0ms
+            </span>
+          </div>
+        </div>
+
+        <!-- Table Data -->
+        <div class="overflow-x-auto custom-scroll flex-1">
+          <table class="w-full text-left border-collapse text-xs font-mono">
+            <thead>
+              <tr class="border-b border-surface-border bg-surface-lowest text-[11px] text-slate-400 uppercase tracking-wider">
+                <th class="py-2.5 px-3">Token & Cadena</th>
+                <th class="py-2.5 px-3">Señal / Tipo</th>
+                <th class="py-2.5 px-3">Entrada Óptima</th>
+                <th class="py-2.5 px-3">M. Cap</th>
+                <th class="py-2.5 px-3">Liq Bloqueada & Burn</th>
+                <th class="py-2.5 px-3">Anti-Rug Score</th>
+                <th class="py-2.5 px-3">R/R Est.</th>
+                <th class="py-2.5 px-3 text-right">Acción</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-border/60">
+              
+              <!-- Row 1: $NEURAL (Solana) -->
+              <tr class="hover:bg-surface-border/40 transition group">
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded bg-accent-sol/20 border border-accent-sol/40 text-accent-sol flex items-center justify-center font-bold text-xs relative">
+                      Ψ
+                      <span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-accent-sol text-[8px] text-white flex items-center justify-center font-sans">S</span>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5 font-bold text-white text-sm">
+                        $NEURAL
+                        <span class="text-[9px] px-1 rounded bg-accent-sol/20 text-accent-sol border border-accent-sol/30 font-mono">SOL</span>
+                      </div>
+                      <div class="text-[11px] text-slate-400">NeuralMind AI • 14m</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5 text-brand font-medium">
+                    <span class="material-symbols-outlined text-sm">water_drop</span>
+                    <span>Whale Frontrun</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400">3 Tier-1 Wallets In</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="font-bold text-white">$0.02418</div>
+                  <div class="text-[10px] text-slate-400">Zona: $0.0235 - $0.0245</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-white font-medium">$840K</div>
+                  <div class="text-[10px] text-brand">+89.4% (15m)</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1 text-[11px]">
+                    <span class="text-brand font-bold bg-brand/10 px-1 rounded">100% BURN</span>
+                    <span class="text-slate-300">$162K Liq</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500">Raydium CLMM Pool</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-6 h-6 rounded bg-brand/20 border border-brand/40 text-brand flex items-center justify-center font-bold text-[11px]">98</span>
+                    <div class="text-[10px] text-slate-400">
+                      <div>Mint Revoked</div>
+                      <div class="text-[9px] text-slate-500">Freeze Disabled</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-brand font-bold">4.8x <span class="text-[10px] text-slate-400 font-normal">/ Bajo</span></div>
+                </td>
+
+                <td class="py-3 px-3 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button class="px-2.5 py-1 rounded bg-brand hover:bg-brand-dim text-black font-bold text-xs flex items-center gap-1 transition shadow-sm">
+                      <span class="material-symbols-outlined text-xs">bolt</span>
+                      SNIPE
+                    </button>
+                    <button class="p-1 rounded bg-surface-lowest hover:bg-surface-border text-slate-400 hover:text-white">
+                      <span class="material-symbols-outlined text-xs">open_in_new</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 2: $PEPEAI (Base) -->
+              <tr class="hover:bg-surface-border/40 transition group">
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded bg-accent-base/20 border border-accent-base/40 text-accent-base flex items-center justify-center font-bold text-xs relative">
+                      🐸
+                      <span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-accent-base text-[8px] text-white flex items-center justify-center font-sans">B</span>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5 font-bold text-white text-sm">
+                        $PEPEAI
+                        <span class="text-[9px] px-1 rounded bg-accent-base/20 text-accent-base border border-accent-base/30 font-mono">BASE</span>
+                      </div>
+                      <div class="text-[11px] text-slate-400">Pepe Synthetic • 28m</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5 text-cyan-400 font-medium">
+                    <span class="material-symbols-outlined text-sm">trending_up</span>
+                    <span>Volume Spike +840%</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400">Aerodrome Inflow</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="font-bold text-white">$0.000084</div>
+                  <div class="text-[10px] text-slate-400">Zona: $0.000078 - 86</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-white font-medium">$1.28M</div>
+                  <div class="text-[10px] text-cyan-400">+142% (1h)</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1 text-[11px]">
+                    <span class="text-cyan-400 font-bold bg-cyan-950/60 px-1 rounded">UNISWAP V3 LOCK</span>
+                    <span class="text-slate-300">$240K Liq</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500">Lock: 365 Días</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-6 h-6 rounded bg-brand/20 border border-brand/40 text-brand flex items-center justify-center font-bold text-[11px]">94</span>
+                    <div class="text-[10px] text-slate-400">
+                      <div>0% Tax Buy/Sell</div>
+                      <div class="text-[9px] text-slate-500">Owner Renounced</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-brand font-bold">3.2x <span class="text-[10px] text-slate-400 font-normal">/ Med</span></div>
+                </td>
+
+                <td class="py-3 px-3 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button class="px-2.5 py-1 rounded bg-brand hover:bg-brand-dim text-black font-bold text-xs flex items-center gap-1 transition shadow-sm">
+                      <span class="material-symbols-outlined text-xs">bolt</span>
+                      SNIPE
+                    </button>
+                    <button class="p-1 rounded bg-surface-lowest hover:bg-surface-border text-slate-400 hover:text-white">
+                      <span class="material-symbols-outlined text-xs">open_in_new</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 3: $YIELDX (Arbitrum) -->
+              <tr class="hover:bg-surface-border/40 transition group">
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded bg-accent-arb/20 border border-accent-arb/40 text-accent-arb flex items-center justify-center font-bold text-xs relative">
+                      ✦
+                      <span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-accent-arb text-[8px] text-white flex items-center justify-center font-sans">A</span>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5 font-bold text-white text-sm">
+                        $YIELDX
+                        <span class="text-[9px] px-1 rounded bg-accent-arb/20 text-accent-arb border border-accent-arb/30 font-mono">ARB</span>
+                      </div>
+                      <div class="text-[11px] text-slate-400">Delta Neutral Vaults</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5 text-cyan-400 font-medium">
+                    <span class="material-symbols-outlined text-sm">opacity</span>
+                    <span>Liquidity Injection</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400">+50 ETH Added (Camelot)</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="font-bold text-white">$1.12</div>
+                  <div class="text-[10px] text-slate-400">Zona: $1.05 - $1.15</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-white font-medium">$410K</div>
+                  <div class="text-[10px] text-brand">+34.8% (30m)</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1 text-[11px]">
+                    <span class="text-cyan-400 font-bold bg-cyan-950/60 px-1 rounded">99% LOCK</span>
+                    <span class="text-slate-300">$310K Liq</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500">Uncx Network Proof</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-6 h-6 rounded bg-brand/20 border border-brand/40 text-brand flex items-center justify-center font-bold text-[11px]">96</span>
+                    <div class="text-[10px] text-slate-400">
+                      <div>Timelock 48h</div>
+                      <div class="text-[9px] text-slate-500">MultiSig 4/6</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-brand font-bold">5.1x <span class="text-[10px] text-slate-400 font-normal">/ Bajo</span></div>
+                </td>
+
+                <td class="py-3 px-3 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button class="px-2.5 py-1 rounded bg-brand hover:bg-brand-dim text-black font-bold text-xs flex items-center gap-1 transition shadow-sm">
+                      <span class="material-symbols-outlined text-xs">bolt</span>
+                      SNIPE
+                    </button>
+                    <button class="p-1 rounded bg-surface-lowest hover:bg-surface-border text-slate-400 hover:text-white">
+                      <span class="material-symbols-outlined text-xs">open_in_new</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 4: $RWA-TREASURY (Ethereum) -->
+              <tr class="hover:bg-surface-border/40 transition group">
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded bg-accent-eth/20 border border-accent-eth/40 text-accent-eth flex items-center justify-center font-bold text-xs relative">
+                      🏛
+                      <span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-accent-eth text-[8px] text-white flex items-center justify-center font-sans">E</span>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5 font-bold text-white text-sm">
+                        $RWA-TREASURY
+                        <span class="text-[9px] px-1 rounded bg-accent-eth/20 text-accent-eth border border-accent-eth/30 font-mono">ETH</span>
+                      </div>
+                      <div class="text-[11px] text-slate-400">T-Bills Yield • 2h</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5 text-brand font-medium">
+                    <span class="material-symbols-outlined text-sm">lock_clock</span>
+                    <span>Contract Verified</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400">Audit CertiK Clear</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="font-bold text-white">$1.002</div>
+                  <div class="text-[10px] text-slate-400">Zona: $0.999 - $1.004</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-white font-medium">$1.95M</div>
+                  <div class="text-[10px] text-brand">+12.1% (24h)</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1 text-[11px]">
+                    <span class="text-brand font-bold bg-brand/10 px-1 rounded">100% PROTOCOL</span>
+                    <span class="text-slate-300">$890K Liq</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500">Uniswap V3 Mainnet</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-6 h-6 rounded bg-brand/20 border border-brand/40 text-brand flex items-center justify-center font-bold text-[11px]">99</span>
+                    <div class="text-[10px] text-slate-400">
+                      <div>Fully Backed RWA</div>
+                      <div class="text-[9px] text-slate-500">No Mint Vulnerability</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-brand font-bold">2.4x <span class="text-[10px] text-slate-400 font-normal">/ Ultra-Bajo</span></div>
+                </td>
+
+                <td class="py-3 px-3 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button class="px-2.5 py-1 rounded bg-brand hover:bg-brand-dim text-black font-bold text-xs flex items-center gap-1 transition shadow-sm">
+                      <span class="material-symbols-outlined text-xs">bolt</span>
+                      SNIPE
+                    </button>
+                    <button class="p-1 rounded bg-surface-lowest hover:bg-surface-border text-slate-400 hover:text-white">
+                      <span class="material-symbols-outlined text-xs">open_in_new</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 5: $BONKAI (Solana) -->
+              <tr class="hover:bg-surface-border/40 transition group">
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded bg-accent-sol/20 border border-accent-sol/40 text-accent-sol flex items-center justify-center font-bold text-xs relative">
+                      🐕
+                      <span class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-accent-sol text-[8px] text-white flex items-center justify-center font-sans">S</span>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5 font-bold text-white text-sm">
+                        $BONKAI
+                        <span class="text-[9px] px-1 rounded bg-accent-sol/20 text-accent-sol border border-accent-sol/30 font-mono">SOL</span>
+                      </div>
+                      <div class="text-[11px] text-slate-400">PumpFun Graduate • 5m</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5 text-cyan-400 font-medium">
+                    <span class="material-symbols-outlined text-sm">rocket_launch</span>
+                    <span>Raydium Migration</span>
+                  </div>
+                  <div class="text-[11px] text-slate-400">Curve completed 100%</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="font-bold text-white">$0.00512</div>
+                  <div class="text-[10px] text-slate-400">Zona: $0.0048 - $0.0054</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-white font-medium">$320K</div>
+                  <div class="text-[10px] text-brand">+210% (10m)</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1 text-[11px]">
+                    <span class="text-brand font-bold bg-brand/10 px-1 rounded">BURN INCLUIDO</span>
+                    <span class="text-slate-300">$72K Liq</span>
+                  </div>
+                  <div class="text-[10px] text-slate-500">Pump.fun Contract Standard</div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-6 h-6 rounded bg-brand/20 border border-brand/40 text-brand flex items-center justify-center font-bold text-[11px]">92</span>
+                    <div class="text-[10px] text-slate-400">
+                      <div>Safe LP Burn</div>
+                      <div class="text-[9px] text-slate-500">Dev Holding 1.8%</div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-3 px-3">
+                  <div class="text-brand font-bold">6.5x <span class="text-[10px] text-slate-400 font-normal">/ Volátil</span></div>
+                </td>
+
+                <td class="py-3 px-3 text-right">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button class="px-2.5 py-1 rounded bg-brand hover:bg-brand-dim text-black font-bold text-xs flex items-center gap-1 transition shadow-sm">
+                      <span class="material-symbols-outlined text-xs">bolt</span>
+                      SNIPE
+                    </button>
+                    <button class="p-1 rounded bg-surface-lowest hover:bg-surface-border text-slate-400 hover:text-white">
+                      <span class="material-symbols-outlined text-xs">open_in_new</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Pagination Footer -->
+        <div class="p-2.5 bg-surface-lowest border-t border-surface-border flex items-center justify-between text-xs font-mono text-slate-400">
+          <div class="flex items-center gap-2">
+            <span>Mostrando <strong>5</strong> de <strong>38</strong> señales activas</span>
+            <span>•</span>
+            <span class="text-brand flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-brand animate-pulse"></span>
+              Auto-refresco en 1.8s
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <button class="px-2 py-1 rounded bg-surface-card border border-surface-border text-slate-500 cursor-not-allowed">Anterior</button>
+            <button class="px-2 py-1 rounded bg-brand text-black font-bold">1</button>
+            <button class="px-2 py-1 rounded bg-surface-card border border-surface-border hover:text-white">2</button>
+            <button class="px-2 py-1 rounded bg-surface-card border border-surface-border hover:text-white">Siguiente</button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT 4-COLS: LIVE MEMPOOL & RADAR FEED -->
+      <section class="lg:col-span-4 flex flex-col gap-3 font-mono">
+        
+        <!-- MEMPOOL FEED CARD -->
+        <div class="bg-surface-card border border-surface-border rounded-lg p-3 flex flex-col">
+          <div class="flex items-center justify-between border-b border-surface-border pb-2.5 mb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-brand animate-ping"></span>
+              <span class="text-xs font-bold text-white uppercase tracking-wider">MEMPOOL RADAR LIVE</span>
+            </div>
+            <span class="text-[10px] text-brand bg-brand/10 border border-brand/20 px-1.5 py-0.5 rounded font-mono">RPC: FASTEST</span>
+          </div>
+
+          <!-- Feed events -->
+          <div class="space-y-2.5 text-xs">
+            
+            <div class="p-2 rounded bg-surface-lowest border-l-2 border-brand text-[11px] space-y-1">
+              <div class="flex justify-between items-center text-slate-400">
+                <span class="text-brand font-bold">WHALE SWAP ($35,000)</span>
+                <span class="text-[10px]">hace 4s</span>
+              </div>
+              <div class="text-white font-medium">0x8a1...d4b compró 1.45M $NEURAL</div>
+              <div class="text-[10px] text-slate-500 flex justify-between">
+                <span>Gas: 0.0028 SOL</span>
+                <span class="text-slate-400">Raydium Router</span>
+              </div>
+            </div>
+
+            <div class="p-2 rounded bg-surface-lowest border-l-2 border-cyan-400 text-[11px] space-y-1">
+              <div class="flex justify-between items-center text-slate-400">
+                <span class="text-cyan-400 font-bold">NUEVA POOL DETECTADA</span>
+                <span class="text-[10px]">hace 12s</span>
+              </div>
+              <div class="text-white font-medium">Añadido 25.0 SOL a $PEPEAI</div>
+              <div class="text-[10px] text-slate-500 flex justify-between">
+                <span>LP Lock: Verificado</span>
+                <span class="text-slate-400">Base Chain</span>
+              </div>
+            </div>
+
+            <div class="p-2 rounded bg-surface-lowest border-l-2 border-danger text-[11px] space-y-1">
+              <div class="flex justify-between items-center text-slate-400">
+                <span class="text-danger font-bold">RUG INTENT BLOQUEADO</span>
+                <span class="text-[10px]">hace 26s</span>
+              </div>
+              <div class="text-white font-medium">Blacklist Triggered en $FAKEAI</div>
+              <div class="text-[10px] text-slate-500 flex justify-between">
+                <span>Mint malicioso detenido</span>
+                <span class="text-danger">Neutralizado</span>
+              </div>
+            </div>
+
+            <div class="p-2 rounded bg-surface-lowest border-l-2 border-brand text-[11px] space-y-1">
+              <div class="flex justify-between items-center text-slate-400">
+                <span class="text-brand font-bold">SMART INSIDER INFLOW</span>
+                <span class="text-[10px]">hace 39s</span>
+              </div>
+              <div class="text-white font-medium">0x3b8...9aa acumuló 22.4 ETH</div>
+              <div class="text-[10px] text-slate-500 flex justify-between">
+                <span>Win-Rate Tracker: 89%</span>
+                <span class="text-slate-400">Uniswap V3</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SENTIMENT & SOCIAL VELOCITY -->
+        <div class="bg-surface-card border border-surface-border rounded-lg p-3">
+          <div class="flex items-center justify-between border-b border-surface-border pb-2.5 mb-2.5">
+            <div class="flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-xs text-brand">local_fire_department</span>
+              <span class="text-xs font-bold text-white uppercase tracking-wider">HOT SENTIMENT RADAR</span>
+            </div>
+            <span class="text-[10px] text-slate-400">X & TG API</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-white font-bold">$NEURAL 🔥 FOMO 94/100</span>
+                <span class="text-brand">+412 menciones/h</span>
+              </div>
+              <div class="w-full bg-surface-lowest h-1.5 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-brand to-cyan-400 h-full w-[94%]"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>Alpha Callers: 14 canales</span>
+                <span class="text-brand">Sentimiento: 92% Bullish</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-white font-bold">$PEPEAI ⚡ FOMO 81/100</span>
+                <span class="text-cyan-400">+289 menciones/h</span>
+              </div>
+              <div class="w-full bg-surface-lowest h-1.5 rounded-full overflow-hidden">
+                <div class="bg-gradient-to-r from-cyan-400 to-accent-base h-full w-[81%]"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>KOL Retweets: 28</span>
+                <span class="text-cyan-400">Sentimiento: 85% Bullish</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-[11px] mb-1">
+                <span class="text-white font-bold">$BONKAI ⚡ FOMO 72/100</span>
+                <span class="text-brand">+184 menciones/h</span>
+              </div>
+              <div class="w-full bg-surface-lowest h-1.5 rounded-full overflow-hidden">
+                <div class="bg-brand h-full w-[72%]"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>Telegram Raids: 6</span>
+                <span class="text-brand">Sentimiento: 78% Bullish</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2.5 border-t border-surface-border/60 flex items-center justify-between text-[11px] text-slate-400">
+            <span class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs text-brand">share</span>
+              Telegram Alpha Scans:
+            </span>
+            <span class="text-white font-bold">8,420 msgs/min</span>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- 4. QUICK COMMAND HOTKEYS BAR -->
+    <div class="p-2 bg-surface-lowest border border-surface-border rounded text-[11px] font-mono text-slate-400 flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-4">
+        <span><kbd class="px-1.5 py-0.5 rounded bg-surface-card border border-surface-border text-white text-[10px]">SPACE</kbd> Pausar Radar</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-surface-card border border-surface-border text-white text-[10px]">B</kbd> Quick-Snipe Primer Token</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-surface-card border border-surface-border text-white text-[10px]">S</kbd> Filtrar Solo Solana</span>
+        <span><kbd class="px-1.5 py-0.5 rounded bg-surface-card border border-surface-border text-white text-[10px]">F</kbd> Modo Pantalla Completa</span>
+      </div>
+      <div class="flex items-center gap-2 text-slate-500">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand"></span>
+        <span>WEBSOCKET ENGINE 4.8.1 ONLINE</span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= GLOBAL TERMINAL FOOTER ================= -->
+  <footer class="border-t border-surface-border bg-surface-lowest px-4 py-2.5 text-[11px] font-mono text-slate-500 flex flex-wrap items-center justify-between gap-3 mt-auto">
+    <div class="flex items-center gap-3">
+      <span class="text-slate-400 font-bold">ALPHAPULSE INSTITUTIONAL TERMINAL</span>
+      <span>•</span>
+      <span>CORE ENGINE 4.8.1</span>
+      <span>•</span>
+      <span class="text-brand">ALL NODES OPERATIONAL</span>
+    </div>
+
+    <div class="flex items-center gap-4 text-slate-400">
+      <a href="#" class="hover:text-brand transition">API RPC Docs</a>
+      <a href="#" class="hover:text-brand transition">Latency Benchmarks</a>
+      <a href="#" class="hover:text-brand transition">Status Page</a>
+      <span>© 2025 AlphaPulse Intelligence.</span>
+    </div>
+  </footer>
+
+</body>
+<html>
+
+
+
+
